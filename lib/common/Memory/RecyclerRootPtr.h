@@ -28,6 +28,7 @@ private:
     RecyclerRootPtr& operator=(RecyclerRootPtr<T> const& ptr); // Disable
 };
 
+
 typedef RecyclerRootPtr<void> RecyclerRootVar;
 
 template <typename T>

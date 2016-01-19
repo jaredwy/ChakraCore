@@ -428,6 +428,7 @@ namespace Js
         generatorFunctionPrototype = nullptr;
         generatorPrototype = nullptr;
         iteratorPrototype = nullptr;
+        asyncFunctionPrototype = nullptr;
 
         if (scriptContext->GetConfig()->IsES6SymbolEnabled())
         {
@@ -1468,6 +1469,7 @@ namespace Js
         weakMapConstructor = nullptr;
         weakSetConstructor = nullptr;
         generatorFunctionConstructor = nullptr;
+        asyncFunctionConstructor = nullptr;
 
         if (scriptContext->GetConfig()->IsES6MapEnabled())
         {
