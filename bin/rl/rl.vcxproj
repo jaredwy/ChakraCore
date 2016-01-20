@@ -31,24 +31,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)rl.cpp" >
-      <DisableSpecificWarnings>4091</DisableSpecificWarnings>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)rlfeint.cpp" >
-      <DisableSpecificWarnings>4091</DisableSpecificWarnings>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)rlmp.cpp" >
-      <DisableSpecificWarnings>4091</DisableSpecificWarnings>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)rlrun.cpp" >
-      <DisableSpecificWarnings>4091</DisableSpecificWarnings>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)rlregr.cpp" >
-      <DisableSpecificWarnings>4091</DisableSpecificWarnings>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)xmlreader.cpp" >
-      <DisableSpecificWarnings>4091</DisableSpecificWarnings>
-    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)rl.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)rlfeint.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)rlmp.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)rlrun.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)rlregr.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)xmlreader.cpp"  />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rl.h" />
