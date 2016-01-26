@@ -8128,7 +8128,7 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
     {
         // We don't support the X64 floating-point calling convention. So put this parameter on the end
         // and save directly to the stack slot.
-#if _M_X64
+#if defined(_M_X64) && !defined(PRERELEASE_REL1602_MSRC32037_BUG5919552)
         IR::Opnd *argOpnd = IR::SymOpnd::New(m_func->m_symTable->GetArgSlotSym(5), TyFloat64, m_func);
         m_lowererMD.CreateAssign(argOpnd, src1, instr);
 #else
@@ -10329,7 +10329,7 @@ Lowerer::GenerateHelperToArrayPushFastPath(IR::Instr * instr, IR::LabelInstr * b
 
     //Currently, X64 floating-point calling convention is not supported. Hence store the
     // float value explicitly in RegXMM2 (RegXMM0 and RegXMM1 will be filled with ScriptContext and Var respectively)
-#if _M_X64
+#if defined(_M_X64) && !defined(PRERELEASE_REL1602_MSRC32037_BUG5919552)
         IR::RegOpnd* regXMM2 = IR::RegOpnd::New(nullptr, (RegNum)RegXMM2, TyMachDouble, this->m_func);
         regXMM2->m_isCallArg = true;
         IR::Instr * movInstr = IR::Instr::New(Js::OpCode::MOVSD, regXMM2, elementHelperOpnd, this->m_func);

@@ -327,11 +327,19 @@ namespace Js
             break;
         }
         case AsmJsRetType::Double:{
+#ifdef PRERELEASE_REL1602_MSRC32037_BUG5919552
+            returnValue = JavascriptNumber::NewWithCheck(doubleRetVal, func->GetScriptContext());
+#else
             returnValue = JavascriptNumber::New(doubleRetVal, func->GetScriptContext());
+#endif
             break;
         }
         case AsmJsRetType::Float:{
+#ifdef PRERELEASE_REL1602_MSRC32037_BUG5919552
+            returnValue = JavascriptNumber::NewWithCheck(floatRetVal, func->GetScriptContext());
+#else
             returnValue = JavascriptNumber::New(floatRetVal, func->GetScriptContext());
+#endif
             break;
         }
         case AsmJsRetType::Float32x4:
@@ -515,7 +523,11 @@ namespace Js
                 call ecx
                 movsd dval, xmm0
             }
+#ifdef PRERELEASE_REL1602_MSRC32037_BUG5919552
+            returnValue = JavascriptNumber::NewWithCheck(dval, func->GetScriptContext());
+#else
             returnValue = JavascriptNumber::New(dval, func->GetScriptContext());
+#endif
             break;
         }
         case AsmJsRetType::Float:{
@@ -530,7 +542,11 @@ namespace Js
                 call ecx
                 movss fval, xmm0
             }
+#ifdef PRERELEASE_REL1602_MSRC32037_BUG5919552
+            returnValue = JavascriptNumber::NewWithCheck((double)fval, func->GetScriptContext());
+#else
             returnValue = JavascriptNumber::New((double)fval, func->GetScriptContext());
+#endif
             break;
         }
         case AsmJsRetType::Int32x4:

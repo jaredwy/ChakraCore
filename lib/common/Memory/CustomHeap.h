@@ -381,7 +381,18 @@ private:
     // this get called when only freeing a part in the page
     DWORD EnsureAllocationExecuteWriteable(Allocation* allocation)
     {
+#if defined(_CONTROL_FLOW_GUARD) && defined(PRERELEASE_REL1602_MSRC31464_BUG5346633)
+        if (AutoSystemInfo::Data.IsCFGEnabled())
+        {
+            return EnsureAllocationReadWrite<true, PAGE_EXECUTE_READWRITE | PAGE_TARGETS_NO_UPDATE>(allocation);
+        }
+        else
+        {
+            return EnsureAllocationReadWrite<true, PAGE_EXECUTE_READWRITE>(allocation);
+        }
+#else
         return EnsureAllocationReadWrite<true, PAGE_EXECUTE_READWRITE>(allocation);
+#endif
     }
 
     template<bool readWrite, DWORD readWriteFlags>
@@ -403,7 +414,25 @@ private:
             if (page->isReadWrite && !page->isDecommitted)
             {
                 DWORD dwOldProtectFlags = 0;
+#ifdef PRERELEASE_REL1602_MSRC31464_BUG5346633
+                DWORD executeFlags = 0;
+#ifdef _CONTROL_FLOW_GUARD
+                if (AutoSystemInfo::Data.IsCFGEnabled())
+                {
+                    executeFlags = PAGE_EXECUTE | PAGE_TARGETS_NO_UPDATE;
+                }
+                else
+                {
+                    executeFlags = PAGE_EXECUTE;
+                }
+#else
+                executeFlags = PAGE_EXECUTE;
+#endif //_CONTROL_FLOW_GUARD
+                BOOL result = this->ProtectPages(page->address, 1, page->segment, executeFlags, &dwOldProtectFlags, readWriteFlags);
+#else
                 BOOL result = this->ProtectPages(page->address, 1, page->segment, PAGE_EXECUTE, &dwOldProtectFlags, readWriteFlags);
+#endif //PRERELEASE_REL1602_MSRC31464_BUG5346633
+
                 page->isReadWrite = false;
                 Assert(result && (dwOldProtectFlags & PAGE_EXECUTE) == 0);
                 return dwOldProtectFlags;

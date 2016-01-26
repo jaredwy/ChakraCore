@@ -4,6 +4,7 @@
 //-------------------------------------------------------------------------------------------------------
 #include "BackEnd.h"
 #include "Language\JavascriptFunctionArgIndex.h"
+#include "IEMSRCSettings.h"
 
 #include "Types\DynamicObjectEnumerator.h"
 #include "Types\DynamicObjectSnapshotEnumerator.h"
@@ -5972,11 +5973,60 @@ LowererMD::SaveDoubleToVar(IR::RegOpnd * dstOpnd, IR::RegOpnd *opndFloat, IR::In
 #else
 
     // s1 = MOVD opndFloat
+    IR::RegOpnd *s1 = IR::RegOpnd::New(TyMachReg, this->m_func);
+    IR::Instr *movd = IR::Instr::New(Js::OpCode::MOVD, s1, opndFloat, this->m_func);
+
+    instrInsert->InsertBefore(movd);
+
+#ifdef PRERELEASE_REL1602_MSRC32037_BUG5919552
+    if (m_func->GetJnFunction()->GetIsAsmjsMode())
+    {
+        // s1 = MOVD src
+        // tmp = NOT s1
+        // tmp = AND tmp, 0x7FF0000000000000ull
+        // test tmp, tmp
+        // je helper
+        // jmp done
+        // helper:
+        // tmp2 = AND s1, 0x000FFFFFFFFFFFFFull
+        // test tmp2, tmp2
+        // je done
+        // s1 = JavascriptNumber::k_Nan
+        // done:
+
+        IR::RegOpnd *tmp = IR::RegOpnd::New(TyMachReg, m_func);
+        IR::Instr * newInstr = IR::Instr::New(Js::OpCode::NOT, tmp, s1, m_func);
+        instrInsert->InsertBefore(newInstr);
+        LowererMD::MakeDstEquSrc1(newInstr);
+
+        newInstr = IR::Instr::New(Js::OpCode::AND, tmp, tmp, IR::AddrOpnd::New((Js::Var)0x7FF0000000000000, IR::AddrOpndKindConstantVar, m_func, true), m_func);
+        instrInsert->InsertBefore(newInstr);
+        LowererMD::Legalize(newInstr);
+
+        IR::LabelInstr* helper = Lowerer::InsertLabel(true, instrInsert);
+
+        Lowerer::InsertTestBranch(tmp, tmp, Js::OpCode::BrEq_A, helper, helper);
+
+        IR::LabelInstr* done = Lowerer::InsertLabel(isHelper, instrInsert);
+
+        Lowerer::InsertBranch(Js::OpCode::Br, done, helper);
+
+        IR::RegOpnd *tmp2 = IR::RegOpnd::New(TyMachReg, m_func);
+
+        newInstr = IR::Instr::New(Js::OpCode::AND, tmp2, s1, IR::AddrOpnd::New((Js::Var)0x000FFFFFFFFFFFFFull, IR::AddrOpndKindConstantVar, m_func, true), m_func);
+        done->InsertBefore(newInstr);
+        LowererMD::Legalize(newInstr);
+
+        Lowerer::InsertTestBranch(tmp2, tmp2, Js::OpCode::BrEq_A, done, done);
+
+        IR::Opnd * opndNaN = IR::AddrOpnd::New((Js::Var)Js::JavascriptNumber::k_Nan, IR::AddrOpndKindConstantVar, m_func, true);
+        Lowerer::InsertMove(s1, opndNaN, done);
+    }
+#endif
+
     // s1 = XOR s1, FloatTag_Value
     // dst = s1
 
-    IR::RegOpnd *s1 = IR::RegOpnd::New(TyMachReg, this->m_func);
-    IR::Instr *movd = IR::Instr::New(Js::OpCode::MOVD, s1, opndFloat, this->m_func);
     IR::Instr *setTag = IR::Instr::New(Js::OpCode::XOR,
                                        s1,
                                        s1,
@@ -5987,7 +6037,6 @@ LowererMD::SaveDoubleToVar(IR::RegOpnd * dstOpnd, IR::RegOpnd *opndFloat, IR::In
                                        this->m_func);
     IR::Instr *movDst = IR::Instr::New(Js::OpCode::MOV, dstOpnd, s1, this->m_func);
 
-    instrInsert->InsertBefore(movd);
     instrInsert->InsertBefore(setTag);
     instrInsert->InsertBefore(movDst);
     LowererMD::Legalize(setTag);
@@ -7705,6 +7754,11 @@ LowererMD::InsertConvertFloat64ToInt32(const RoundMode roundMode, IR::Opnd *cons
 void
 LowererMD::EmitFloatToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
 {
+#if defined(_M_IX86) && defined(PRERELEASE_REL1602_MSRC32037_BUG5919552)
+    // We should only generate this if sse2 is available
+    Assert(AutoSystemInfo::Data.SSE2Available());
+#endif
+
     IR::LabelInstr *labelDone = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
     IR::LabelInstr *labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
     IR::Instr *instr;
@@ -7714,7 +7768,7 @@ LowererMD::EmitFloatToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
     // $Helper
     instrInsert->InsertBefore(labelHelper);
 
-#ifdef _M_X64
+#if defined(_M_X64) && !defined(PRERELEASE_REL1602_MSRC32037_BUG5919552)
     // On x64, we can simply pass the var, this way we don't have to worry having to
     // pass a double in a param reg
 
@@ -7725,8 +7779,8 @@ LowererMD::EmitFloatToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
 
     // s1 = XOR s1, FloatTag_Value
     instr = IR::Instr::New(Js::OpCode::XOR, s1, s1,
-                           IR::AddrOpnd::New((Js::Var)Js::FloatTag_Value, IR::AddrOpndKindConstantVar, this->m_func, /* dontEncode = */ true),
-                           this->m_func);
+        IR::AddrOpnd::New((Js::Var)Js::FloatTag_Value, IR::AddrOpndKindConstantVar, this->m_func, /* dontEncode = */ true),
+        this->m_func);
     instrInsert->InsertBefore(instr);
     LowererMD::Legalize(instr);
 
@@ -7745,6 +7799,7 @@ LowererMD::EmitFloatToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
     instrInsert->InsertBefore(instr);
     this->ChangeToHelperCall(instr, IR::HelperConv_ToInt32Core);
 #endif
+
     // $Done
     instrInsert->InsertBefore(labelDone);
 }
@@ -9018,7 +9073,7 @@ IR::Opnd* LowererMD::IsOpndNegZero(IR::Opnd* opnd, IR::Instr* instr)
 {
     IR::Opnd * isNegZero = IR::RegOpnd::New(TyInt32, this->m_func);
 
-#if defined(_M_IX86)
+#if defined(_M_IX86) || defined(PRERELEASE_REL1602_MSRC32037_BUG5919552)
     LoadDoubleHelperArgument(instr, opnd);
     IR::Instr * helperCallInstr = IR::Instr::New(Js::OpCode::CALL, isNegZero, this->m_func);
     instr->InsertBefore(helperCallInstr);

@@ -6,6 +6,8 @@
 //----------------------------------------------------------------------------
 #pragma once
 
+#include "IEMSRCSettings.h"
+
 namespace Js
 {
     typedef Var (*PFNCreateTypedArray)(Js::ArrayBuffer* arrayBuffer, uint32 offSet, uint32 mappedLength, Js::JavascriptLibrary* javascirptLibrary);
@@ -334,6 +336,13 @@ namespace Js
             {
                 newLength = GetLength() - newStart;
             }
+#ifdef PRERELEASE_REL1602_MSRC32252_BUG6083445
+            if (newStart >= GetLength())
+            {
+                // If we want to start copying past the length of the array, all index are no-op
+                return true;
+            }
+#endif
 
             TypeName* typedBuffer = (TypeName*)buffer;
 

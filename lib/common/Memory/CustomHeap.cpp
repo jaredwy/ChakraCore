@@ -831,11 +831,29 @@ bool Heap::FreeAllocation(Allocation* object)
         return false;
     }
     else // after freeing part of the page, the page should be in PAGE_EXECUTE_READWRITE protection, and turning to PAGE_EXECUTE
-    {
-        DWORD dwExpectedFlags = 0;
+    { 
+        DWORD dwExpectedFlags = 0;        
+#ifdef PRERELEASE_REL1602_MSRC31464_BUG5346633
+        DWORD executeFlags = 0;
 
+#ifdef _CONTROL_FLOW_GUARD
+        if (AutoSystemInfo::Data.IsCFGEnabled())
+        {
+            executeFlags = PAGE_EXECUTE | PAGE_TARGETS_NO_UPDATE;
+        }
+        else
+        {
+            executeFlags = PAGE_EXECUTE;
+        }
+#else
+        executeFlags = PAGE_EXECUTE;
+#endif // _CONTROL_FLOW_GUARD
+        this->ProtectPages(page->address, 1, segment, executeFlags, &dwExpectedFlags, PAGE_EXECUTE_READWRITE);
+#else
         this->ProtectPages(page->address, 1, segment, PAGE_EXECUTE, &dwExpectedFlags, PAGE_EXECUTE_READWRITE);
+#endif // PRERELEASE_REL1602_MSRC31464_BUG5346633
 
+        
         Assert(!object->isAllocationUsed || dwExpectedFlags == PAGE_EXECUTE_READWRITE);
         page->isReadWrite = false;
 
