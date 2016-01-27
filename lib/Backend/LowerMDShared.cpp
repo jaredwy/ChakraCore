@@ -4,7 +4,6 @@
 //-------------------------------------------------------------------------------------------------------
 #include "BackEnd.h"
 #include "Language\JavascriptFunctionArgIndex.h"
-#include "IEMSRCSettings.h"
 
 #include "Types\DynamicObjectEnumerator.h"
 #include "Types\DynamicObjectSnapshotEnumerator.h"

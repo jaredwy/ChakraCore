@@ -6,8 +6,6 @@
 //----------------------------------------------------------------------------
 #pragma once
 
-#include "IEMSRCSettings.h"
-
 namespace Js
 {
     typedef Var (*PFNCreateTypedArray)(Js::ArrayBuffer* arrayBuffer, uint32 offSet, uint32 mappedLength, Js::JavascriptLibrary* javascirptLibrary);
