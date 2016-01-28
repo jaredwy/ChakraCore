@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <regress-exe>
   <test>
     <default>
@@ -493,6 +493,7 @@
       <compile-flags>-testtrace:asmjs -simdjs -maic:0</compile-flags>
     </default>
   </test>
+  <!-- Temporarily disable due to IEMSRCSettings.h dependance. Re-enable with release of 1602.
   <test>
     <default>
       <files>nanbug.js</files>
@@ -507,6 +508,7 @@
       <compile-flags>-testtrace:asmjs -simdjs</compile-flags>
     </default>
   </test>
+  -->
   <test>
     <default>
       <files>Matrix.js</files>
