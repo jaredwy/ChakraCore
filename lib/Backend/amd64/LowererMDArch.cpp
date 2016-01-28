@@ -1210,6 +1210,13 @@ LowererMDArch::LoadDoubleHelperArgument(IR::Instr * instrInsert, IR::Opnd * opnd
     return LoadHelperArgument(instrInsert, opndArg);
 }
 
+IR::Instr *
+LowererMDArch::LoadFloatHelperArgument(IR::Instr * instrInsert, IR::Opnd * opndArg)
+{
+    Assert(opndArg->IsFloat32());
+    return LoadHelperArgument(instrInsert, opndArg);
+}
+
 //
 // Emits the code to allocate 'size' amount of space on stack. for values smaller than PAGE_SIZE
 // this will just emit sub rsp,size otherwise calls _chkstk.
