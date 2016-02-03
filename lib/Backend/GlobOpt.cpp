@@ -20814,11 +20814,7 @@ GlobOpt::EmitMemop(Loop * loop, LoopCount *loopCount, const MemOpEmitData* emitD
         const Loop::MemSetCandidate* candidate = data->candidate->AsMemSet();
         if (candidate->srcSym)
         {
-<<<<<<< HEAD
-            IR::RegOpnd* regSrc = IR::RegOpnd::New(candidate->varSym, candidate->varSym->GetType(), func);
-=======
             IR::RegOpnd* regSrc = IR::RegOpnd::New(candidate->srcSym, candidate->srcSym->GetType(), func);
->>>>>>> f8a38f70950f2fd8ad648bfb7d25f566f1b7aba6
             regSrc->SetIsJITOptimizedReg(true);
             src1 = regSrc;
         }
