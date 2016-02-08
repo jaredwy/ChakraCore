@@ -511,14 +511,6 @@
   -->
   <test>
     <default>
-      <files>Matrix.js</files>
-      <baseline>MatrixLinkFail.baseline</baseline>
-      <compile-flags>-testtrace:asmjs -simdjs -forceasmjslinkfail</compile-flags>
-      <tags>Slow</tags>
-    </default>
-  </test>
-  <test>
-    <default>
       <files>switchbug.js</files>
       <baseline>switchbug.baseline</baseline>
       <compile-flags>-testtrace:asmjs -simdjs -maic:0</compile-flags>
