@@ -14,8 +14,8 @@ SetProcessValidCallTargets(
     _In_ HANDLE hProcess,
     _In_ PVOID VirtualAddress,
     _In_ SIZE_T RegionSize,
-    _In_ ULONG NumberOfOffets,
-    _In_reads_(NumberOfOffets) PCFG_CALL_TARGET_INFO OffsetInformation
+    _In_ ULONG NumberOfOffsets,
+    _In_reads_(NumberOfOffsets) PCFG_CALL_TARGET_INFO OffsetInformation
     );
 #endif
 #endif
@@ -398,8 +398,8 @@ namespace Js
     BOOL DelayLoadWinCoreMemory::SetProcessCallTargets(_In_ HANDLE hProcess,
         _In_ PVOID VirtualAddress,
         _In_ SIZE_T RegionSize,
-        _In_ ULONG NumberOfOffets,
-        _In_reads_(NumberOfOffets) PCFG_CALL_TARGET_INFO OffsetInformation)
+        _In_ ULONG NumberOfOffsets,
+        _In_reads_(NumberOfOffsets) PCFG_CALL_TARGET_INFO OffsetInformation)
     {
 #if defined(ENABLE_JIT_CLAMP)
         // Ensure that dynamic code generation is allowed for this thread as
@@ -421,12 +421,12 @@ namespace Js
             }
 
             Assert(m_pfnSetProcessValidCallTargets != nullptr);
-            return m_pfnSetProcessValidCallTargets(hProcess, VirtualAddress, RegionSize, NumberOfOffets, OffsetInformation);
+            return m_pfnSetProcessValidCallTargets(hProcess, VirtualAddress, RegionSize, NumberOfOffsets, OffsetInformation);
         }
 
         return FALSE;
 #else
-        return SetProcessValidCallTargets(hProcess, VirtualAddress, RegionSize, NumberOfOffets, OffsetInformation);
+        return SetProcessValidCallTargets(hProcess, VirtualAddress, RegionSize, NumberOfOffsets, OffsetInformation);
 #endif
     }
 #endif
@@ -497,7 +497,7 @@ namespace Js
         {
             if (m_pfnRoGetMetadataFile == nullptr)
             {
-                m_pfnRoGetMetadataFile = (PFNCWRoGetMettadataFile)GetFunction("RoGetMetaDataFile");
+                m_pfnRoGetMetadataFile = (PFNCWRoGetMetadataFile)GetFunction("RoGetMetaDataFile");
                 if (m_pfnRoGetMetadataFile == nullptr)
                 {
                     return E_UNEXPECTED;
