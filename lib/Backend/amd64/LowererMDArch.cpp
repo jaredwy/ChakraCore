@@ -1194,6 +1194,7 @@ LowererMDArch::LoadDynamicArgumentUsingLength(IR::Instr *instr)
 IR::Instr *
 LowererMDArch::LoadDoubleHelperArgument(IR::Instr * instrInsert, IR::Opnd * opndArg)
 {
+#ifdef PRERELEASE_REL1602_MSRC32037_BUG5919552
     IR::Opnd * float64Opnd;
     if (opndArg->GetType() == TyFloat32)
     {
@@ -1207,6 +1208,9 @@ LowererMDArch::LoadDoubleHelperArgument(IR::Instr * instrInsert, IR::Opnd * opnd
     }
 
     Assert(opndArg->IsFloat());
+#else
+    Assert(opndArg->IsFloat64());
+#endif
     return LoadHelperArgument(instrInsert, opndArg);
 }
 

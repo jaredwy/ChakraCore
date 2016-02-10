@@ -6018,8 +6018,25 @@ LowererMD::SaveDoubleToVar(IR::RegOpnd * dstOpnd, IR::RegOpnd *opndFloat, IR::In
 #else
 
     // s1 = MOVD opndFloat
+#ifndef PRERELEASE_REL1602_MSRC32037_BUG5919552
+    // s1 = XOR s1, FloatTag_Value
+    // dst = s1
+#endif
+
     IR::RegOpnd *s1 = IR::RegOpnd::New(TyMachReg, this->m_func);
     IR::Instr *movd = IR::Instr::New(Js::OpCode::MOVD, s1, opndFloat, this->m_func);
+
+#ifndef PRERELEASE_REL1602_MSRC32037_BUG5919552
+    IR::Instr *setTag = IR::Instr::New(Js::OpCode::XOR,
+                                       s1,
+                                       s1,
+                                       IR::AddrOpnd::New((Js::Var)Js::FloatTag_Value,
+                                                         IR::AddrOpndKindConstantVar,
+                                                         this->m_func,
+                                                         /* dontEncode = */ true),
+                                       this->m_func);
+    IR::Instr *movDst = IR::Instr::New(Js::OpCode::MOV, dstOpnd, s1, this->m_func);
+#endif
 
     instrInsert->InsertBefore(movd);
 
@@ -6067,7 +6084,6 @@ LowererMD::SaveDoubleToVar(IR::RegOpnd * dstOpnd, IR::RegOpnd *opndFloat, IR::In
         IR::Opnd * opndNaN = IR::AddrOpnd::New((Js::Var)Js::JavascriptNumber::k_Nan, IR::AddrOpndKindConstantVar, m_func, true);
         Lowerer::InsertMove(s1, opndNaN, done);
     }
-#endif
 
     // s1 = XOR s1, FloatTag_Value
     // dst = s1
@@ -6081,6 +6097,7 @@ LowererMD::SaveDoubleToVar(IR::RegOpnd * dstOpnd, IR::RegOpnd *opndFloat, IR::In
                                                          /* dontEncode = */ true),
                                        this->m_func);
     IR::Instr *movDst = IR::Instr::New(Js::OpCode::MOV, dstOpnd, s1, this->m_func);
+#endif
 
     instrInsert->InsertBefore(setTag);
     instrInsert->InsertBefore(movDst);
