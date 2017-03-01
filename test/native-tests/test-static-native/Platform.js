@@ -17,6 +17,7 @@ if (!isStaticBuild) {
     binaryPath = binaryPath.substr(0, binaryPath.lastIndexOf(path_sep));
     var makefile =
 "IDIR=" + binaryPath + "/../../lib/Jsrt \n\
+CATCHINCLUDE=" + binaryPath + "/../../bin/External \n\
 \n\
 LIBRARY_PATH=" + binaryPath + "/lib\n\
 PLATFORM=" + platform + "\n\
@@ -24,7 +25,7 @@ LDIR=$(LIBRARY_PATH)/libChakraCoreStatic.a \n\
 \n\
 ifeq (darwin, ${PLATFORM})\n\
 \tICU4C_LIBRARY_PATH ?= /usr/local/opt/icu4c\n\
-\tCFLAGS=-lstdc++ -std=c++11 -I$(IDIR)\n\
+\tCFLAGS=-lstdc++ -std=c++11 -I$(CATCHINCLUDE) -I$(IDIR)\n\
 \tFORCE_STARTS=-Wl,-force_load,\n\
 \tFORCE_ENDS=\n\
 \tLIBS=-framework CoreFoundation -framework Security -lm -ldl -Wno-c++11-compat-deprecated-writable-strings \
