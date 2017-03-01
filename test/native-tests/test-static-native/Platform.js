@@ -34,7 +34,7 @@ ifeq (darwin, ${PLATFORM})\n\
     $(ICU4C_LIBRARY_PATH)/lib/libicuuc.a \
     $(ICU4C_LIBRARY_PATH)/lib/libicui18n.a\n\
 else\n\
-\tCFLAGS=-lstdc++ -std=c++0x -I$(IDIR)\n\
+\tCFLAGS=-lstdc++ -std=c++0x -I$(IDIR) -I$(CATCHINCLUDE)\n\
 \tFORCE_STARTS=-Wl,--whole-archive\n\
 \tFORCE_ENDS=-Wl,--no-whole-archive\n\
 \tLIBS=-pthread -lm -ldl -licuuc -lunwind-x86_64 -Wno-c++11-compat-deprecated-writable-strings \
